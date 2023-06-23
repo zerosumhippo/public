@@ -150,3 +150,11 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+other_apps/data-entry-automation/.idea/data-entry-automation.iml
+other_apps/data-entry-automation/.idea/inspectionProfiles/profiles_settings.xml
+other_apps/data-entry-automation/.idea/misc.xml
+other_apps/data-entry-automation/.idea/modules.xml
+other_apps/data-entry-automation/.idea/vcs.xml
+other_apps/kanye-quotes-app/.idea/vcs.xml
+other_apps/oop-coffee-machine-start/.idea/misc.xml
+other_apps/password-manager-start/.idea/vcs.xml
