@@ -165,3 +165,4 @@ other_apps/amazon-price-tracker/.idea/modules.xml
 other_apps/amazon-price-tracker/.idea/vcs.xml
 other_apps/flight-deals-app/.idea/workspace.xml
 *.xml
+*.iml
