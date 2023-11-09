@@ -1,17 +1,23 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 import random
+from flask_wtf import FlaskForm
+from wtforms import StringField, URLField, BooleanField, SubmitField
+from wtforms.validators import DataRequired, URL, AnyOf
+import os
+from flask_bootstrap import Bootstrap5
 
 app = Flask(__name__)
-
-# Connect to Database
+bootstrap = Bootstrap5(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cafes.db'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 db = SQLAlchemy()  # SQLAlchemy(app)
 db.init_app(app)
 
+API_KEY = os.environ.get("API_KEY")
 
-# Cafe TABLE Configuration
+
 class Cafe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), unique=True, nullable=False)
@@ -28,6 +34,20 @@ class Cafe(db.Model):
 
 # with app.create_connect():
 #     db.create_all()
+
+
+class AddCafeForm(FlaskForm):
+    name = StringField("Cafe Name", validators=[DataRequired()])
+    map_url = URLField("Map URL For Cafe", validators=[URL()])
+    img_url = URLField("Image URL For Cafe", validators=[URL()])
+    location = StringField("Cafe Location", validators=[DataRequired()])
+    seats = StringField("Number of Seats", validators=[DataRequired()])
+    has_toilet = BooleanField("Cafe Has Toilet?")
+    has_wifi = BooleanField("Cafe Has Wifi?", default='unchecked')
+    has_sockets = BooleanField("Cafe Has Power Outlets?")
+    can_take_calls = BooleanField("Can Take Calls in Cafe?")
+    coffee_price = StringField("Price of Black Cup of Coffee (e.g. $5.25)", validators=[DataRequired()])
+    submit = SubmitField(label="Add Cafe")
 
 
 @app.route("/")
@@ -105,11 +125,62 @@ def search_cafes():
         return jsonify(cafe_dict)
 
 
-#  HTTP POST - Create Record
+@app.route("/add", methods=["GET", "POST"])
+def add_new_cafe():
+    form = AddCafeForm()
+    if form.validate_on_submit() and request.method == "POST":
+        boolean_field_dict = {}
+        max_id = db.session.query(func.max(Cafe.id)).scalar()
+        for field in form:
+            if field.type == "BooleanField":
+                try:
+                    request.form[field.name]
+                except KeyError:
+                    boolean_field_dict[field.name] = False
+                else:
+                    boolean_field_dict[field.name] = True
+        new_cafe = Cafe(id=(int(max_id) + 1),
+                        name=request.form["name"],
+                        map_url=request.form["map_url"],
+                        img_url=request.form["img_url"],
+                        location=request.form["location"],
+                        seats=request.form["seats"],
+                        has_toilet=boolean_field_dict["has_toilet"],
+                        has_wifi=boolean_field_dict["has_wifi"],
+                        has_sockets=boolean_field_dict["has_sockets"],
+                        can_take_calls=boolean_field_dict["can_take_calls"],
+                        coffee_price=request.form["coffee_price"])
+        db.session.add(new_cafe)
+        db.session.commit()
+        return jsonify(response={"Success": "Successfully added the new cafe."})
+    return render_template("add_cafe.html", form=form)
 
-#  HTTP PUT/PATCH - Update Record
 
-#  HTTP DELETE - Delete Record
+@app.route("/update-price/<int:cafe_id>", methods=["PATCH"])
+def update_price(cafe_id):
+    new_price = request.args.get("coffee_price")
+    cafe_to_update = db.session.get(Cafe, cafe_id)
+    if cafe_to_update:
+        cafe_to_update.coffee_price = new_price
+        db.session.commit()
+        return jsonify(response={"Success": f"Successfully updated the coffee price for {cafe_to_update.name} "
+                                            f"to {new_price}."}), 200
+    else:
+        return jsonify(response={"Error": f"Sorry, a cafe with ID {cafe_id} does not exist in the database."}), 404
+
+
+@app.route("/delete-cafe/<int:cafe_id>", methods=["GET", "DELETE"])
+def delete_cafe(cafe_id):
+    user_api_key = request.args.get("api-key")
+    cafe_to_delete = db.session.get(Cafe, cafe_id)
+    if cafe_to_delete and user_api_key == API_KEY:
+        db.session.delete(cafe_to_delete)
+        db.session.commit()
+        return jsonify(response={"Success": f"Successfully deleted the record for {cafe_to_delete.name}."}), 200
+    elif user_api_key != API_KEY:
+        return jsonify(response={"Error": f'Sorry, "{user_api_key}" is not a valid API key.'}), 403
+    else:
+        return jsonify(response={"Error": f"Sorry, a cafe with ID {cafe_id} does not exist in the database."}), 404
 
 
 if __name__ == '__main__':

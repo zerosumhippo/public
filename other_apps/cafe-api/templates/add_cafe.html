@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+{% from 'bootstrap5/form.html' import render_form %}
+<head>
+    <meta charset="UTF-8">
+    <title>Add a New Cafe</title>
+</head>
+<body>
+    {{ render_form(form, novalidate=True) }}
+    <a href="{{ url_for('home') }}">Return to Main Page</a>
+</body>
+</html>
