@@ -7,6 +7,7 @@ from wtforms.validators import DataRequired, URL
 from flask_ckeditor import CKEditor, CKEditorField
 from datetime import date
 import os
+import smtplib
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -18,6 +19,9 @@ ckeditor = CKEditor(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 db = SQLAlchemy()
 db.init_app(app)
+
+CONTACT_ME_EMAIL = os.environ.get("CONTACT_ME_EMAIL")
+CONTACT_ME_EMAIL_PW = os.environ.get("CONTACT_ME_EMAIL_PW")
 
 
 # CONFIGURE TABLE
@@ -108,9 +112,26 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
-    return render_template("contact.html")
+    if request.method == 'GET':
+        msg_sent = False
+        return render_template("contact.html", msg_sent=msg_sent)
+    elif request.method == 'POST':
+        msg_sent = True
+        with smtplib.SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(user=CONTACT_ME_EMAIL, password=CONTACT_ME_EMAIL_PW)
+            connection.sendmail(
+                from_addr=CONTACT_ME_EMAIL,
+                to_addrs=CONTACT_ME_EMAIL,
+                msg=f"Subject:Blog | Contact Me\n\n"
+                    f"Name: {request.form['name']}\n"
+                    f"Email: {request.form['email']}\n"
+                    f"Phone Number: {request.form['phone']}\n"
+                    f"Message: {request.form['message']}"
+            )
+        return render_template("contact.html", msg_sent=msg_sent)
 
 
 if __name__ == "__main__":
