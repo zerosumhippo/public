@@ -23,4 +23,3 @@ class MorseConverter:
                         if self.morse_data.Text[n] == letter:
                             morse_output += f"{str(self.morse_data.Morse[n])} "
                 print(morse_output)
-                
