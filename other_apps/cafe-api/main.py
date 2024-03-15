@@ -43,7 +43,7 @@ class AddCafeForm(FlaskForm):
     location = StringField("Cafe Location", validators=[DataRequired()])
     seats = StringField("Number of Seats", validators=[DataRequired()])
     has_toilet = BooleanField("Cafe Has Toilet?")
-    has_wifi = BooleanField("Cafe Has Wifi?", default='unchecked')
+    has_wifi = BooleanField("Cafe Has Wifi?")
     has_sockets = BooleanField("Cafe Has Power Outlets?")
     can_take_calls = BooleanField("Can Take Calls in Cafe?")
     coffee_price = StringField("Price of Black Cup of Coffee (e.g. $5.25)", validators=[DataRequired()])
