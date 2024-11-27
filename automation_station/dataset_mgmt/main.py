@@ -1,8 +1,12 @@
-# Gotta take arguments that identify:
-# # client
-# # oneview
-# # redshift cluster
-# Then it would reach into github to grab the SQL
-# Then update in Redshift
-# Then run metadata generation
+from flask import Flask, render_template
 
+app = Flask(__name__)
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
