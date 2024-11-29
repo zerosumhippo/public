@@ -10,8 +10,25 @@ class DatasetManagement:
     """Finds OneViews for an agency or client in GitHub and runs the SQL scripts."""
 
     def __init__(self):
-        # self.example_field_list = []
+        self.starship_agency_org_metadata = {
+            "organization": {
+                "id": 123456789,
+                "pretty name": "Starship Agency",
+                "schema_name": "starship_agency"
+            },
+            "clients": [
+                {
+                    "id": 12345,
+                    "pretty name": "Crush Bugs Corp",
+                    "schema_name": "crush_bugs_corp"
+                },
+                {
+                    "id": 24689,
+                    "pretty name": "Ed's Bomb Depot",
+                    "schema_name": "ed_s_bomb_depot"
+                }
+            ]
+        }
 
-    def get_oneview_names(self):
-        pass
-
+    def get_org_metadata(self):
+        return self.starship_agency_org_metadata
