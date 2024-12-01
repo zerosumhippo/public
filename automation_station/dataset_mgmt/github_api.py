@@ -1,23 +1,31 @@
+from wrappers import github_auth
 import requests
-import os
 
-GH_FG_DM_ACCESS_TOKEN = os.environ.get("GH_FG_DM_ACCESS_TOKEN")
-GH_BASE_URL = 'https://api.github.com'
-gh_headers = {
-    'Authorization': f'Bearer {GH_FG_DM_ACCESS_TOKEN}'
-    # 'X-GitHub-Api-Version': '2022-11-28'
-}
-gh_user_name = 'zerosumhippo'
-gh_repo_name = 'mock-redshift-admin'
-gh_repository_url = f"{GH_BASE_URL}/repos/{gh_user_name}/{gh_repo_name}"
 
-# Send the GET request
-response = requests.get(gh_repository_url, headers=gh_headers)
+class GitHubPuller:
+    """Interacts with the GitHub API."""
 
-# Check if the request was successful
-if response.status_code == 200:
-    # Parse and print the JSON response
-    data = response.json()
-    print(data)
-else:
-    print(f"Error: {response.status_code}")
+    def __init__(self):
+        self.user_name = 'zerosumhippo'
+        self.repo_name = 'mock-redshift-admin'
+        self.repo_contents_url = f"https://api.github.com/repos/{self.user_name}/{self.repo_name}/contents/"
+
+    @github_auth
+    def get_oneviews_in_org_shell_script(self, auth, cmx_org_schema_name):
+        repo_contents_path = f"shell_scripts/{cmx_org_schema_name}"
+        try:
+            response = requests.get(self.repo_contents_url + repo_contents_path, headers=auth["gh_headers"])
+            response.raise_for_status()
+        except requests.exceptions.RequestException as error:
+            print(error)
+            return None
+        else:
+            oneview_names = [oneview["name"] for oneview in response.json()]
+            return oneview_names
+
+
+ghpuller = GitHubPuller()
+
+api_response = ghpuller.get_oneviews_in_org_shell_script(cmx_org_schema_name="starship_agency")
+print(api_response)
+
