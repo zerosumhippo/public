@@ -12,6 +12,9 @@ class GitHubPuller:
 
     @github_auth
     def get_oneviews_in_org_shell_script(self, auth, cmx_org_schema_name):
+        """The shell script is a representation of all OneViews that the organization has, so
+        getting all names from the shell script should provide us with all possible OneViews
+        for a specific organization."""
         repo_contents_path = f"shell_scripts/{cmx_org_schema_name}"
         try:
             response = requests.get(self.repo_contents_url + repo_contents_path, headers=auth["gh_headers"])
@@ -22,10 +25,3 @@ class GitHubPuller:
         else:
             oneview_names = [oneview["name"] for oneview in response.json()]
             return oneview_names
-
-
-ghpuller = GitHubPuller()
-
-api_response = ghpuller.get_oneviews_in_org_shell_script(cmx_org_schema_name="starship_agency")
-print(api_response)
-
