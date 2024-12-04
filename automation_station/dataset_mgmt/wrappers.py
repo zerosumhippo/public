@@ -16,3 +16,16 @@ def github_auth(func):
         }
         return func(*args, **kwargs, auth=gh_auth_details)
     return wrapper
+
+
+# def define_repo_contents_path(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         """Returns the repo contents path needed based on the function name."""
+#         repo_contents_path = ""
+#         if func.__name__ == "get_oneviews_in_org_shell_script":
+#             repo_contents_path = f"shell_scripts/{func.cmx_org_schema_name}"
+#         elif func.__name__ == "get_client_specific_oneviews":
+#             repo_contents_path = f"clients/{func.cmx_org_schema_name}/{func.cmx_client_schema_name}"
+#         return func(*args, **kwargs, repo_contents_path)
+#     return wrapper
