@@ -8,8 +8,10 @@
     <h1>Main Corona Page</h1>
     <p>Go to client of {{ org_dict["pretty name"] }}:</p>
     <ul>
-        {% for client in org_dict["clients"] %}
-            <li><a href=" {{ url_for('call_page', client_id=client['id']) }} ">Go to call for {{ client["pretty name"] }}</a></li>
+        {% for client in client_list %}
+            {% if client["organization id"] == org_dict["id"]%}
+                <li><a href=" {{ url_for('call_page', client_id=client['id']) }} ">Go to call for {{ client["pretty name"] }}</a></li>
+            {% endif %}
         {% endfor %}
     </ul>
 </body>

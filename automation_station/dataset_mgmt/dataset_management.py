@@ -27,19 +27,19 @@ class DatasetManagement:
             "clients": [
                 {
                     "id": 12345,
-                    "organization_id": 123456789,
+                    "organization id": 123456789,
                     "pretty name": "Crush Bugs Corp",
                     "schema name": "crush_bugs_corp"
                 },
                 {
                     "id": 24689,
-                    "organization_id": 123456789,
+                    "organization id": 123456789,
                     "pretty name": "Ed's Bomb Depot",
                     "schema name": "ed_s_bomb_depot"
                 },
                 {
                     "id": 35791,
-                    "organization_id": 987654321,
+                    "organization id": 987654321,
                     "pretty name": "Mars Fleet",
                     "schema name": "mars_fleet"
                 }
