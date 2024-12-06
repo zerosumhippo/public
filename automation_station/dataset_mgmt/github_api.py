@@ -13,10 +13,6 @@ class GitHubPuller:
     def _transform_response_into_oneview_list(self, api_response):
         return [oneview["name"] for oneview in api_response.json()]
 
-    # @github_auth
-    # def _get_repo_contents(self, auth, repo_contents_path):
-    #     return requests.get(self.repo_contents_url + repo_contents_path, headers=auth["gh_headers"])
-
     @github_auth
     def get_oneviews_in_org_shell_script(self, auth, cmx_org_schema_name):
         """The shell script is a representation of all OneViews that the organization has, so
@@ -26,7 +22,7 @@ class GitHubPuller:
         repo_contents_path = f"shell_scripts/{cmx_org_schema_name}"
         try:
             response = requests.get(self.repo_contents_url + repo_contents_path, headers=auth["gh_headers"])
-            # create an internal function and wrapper to do this
+            # create a wrapper to handle the repo_contents_path
             # once that is done, both of these functions can probably be combined into one
             response.raise_for_status()
         except requests.exceptions.RequestException as error:
