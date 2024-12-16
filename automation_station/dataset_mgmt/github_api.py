@@ -18,7 +18,10 @@ class GitHubPuller:
             print(error)
             return None
         else:
-            return [sql_file["path"] for sql_file in response.json()]
+            return {
+                "file names": [sql_file["name"] for sql_file in response.json()],
+                "file paths": [sql_file["path"] for sql_file in response.json()]
+            }
 
     def get_sql_files_in_org_shell_script(self, cmx_org_schema_name):
         """The shell script is a representation of all SQL files that the organization has,
