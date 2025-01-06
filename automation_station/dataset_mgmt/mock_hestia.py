@@ -56,6 +56,10 @@ class Hestia:
     def get_org_metadata(self, org_id):
         return [org for org in self.all_org_metadata["organizations"] if int(org_id) == int(org["id"])][0]
 
+    def get_client_ids_for_org(self, org_id):
+        return [client["id"] for client in self.all_org_metadata["clients"]
+                if int(org_id) == int(client["organization id"])]
+
     def get_redshift_cluster_metadata(self, redshift_cluster_id):
         return [cluster for cluster in self.redshift_clusters
                 if int(redshift_cluster_id) == int(cluster["redshift cluster id"])][0]

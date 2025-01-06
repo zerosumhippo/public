@@ -45,6 +45,17 @@ class DatasetManagement:
         client_folder_contents = self._only_retain_sql_files(client_folder_contents)
         return self._prioritize_client_folder_over_org_shell(org_shell_contents, client_folder_contents)
 
+    def get_sql_file_paths_for_all_clients_in_org(self, org_id):
+        client_id_list = hestia.get_client_ids_for_org(org_id)
+        client_sql_file_path_dict = {}
+        for client_id in client_id_list:
+            client_sql_file_list = self.get_sql_file_paths_for_client(client_id)
+            client_sql_file_path_dict["client_id"] = client_id
+            client_sql_file_path_dict["client_sql_file_list"] = client_sql_file_list
+        print(client_sql_file_path_dict)
+        # values are getting overwritten
+        # see: https://stackoverflow.com/questions/31181830/adding-item-to-dictionary-within-loop
+
 
 # dm = DatasetManagement()
-# print(dm.get_sql_file_paths_for_client(12345))
+# print(dm.get_sql_file_paths_for_all_clients_in_org(123456789))
