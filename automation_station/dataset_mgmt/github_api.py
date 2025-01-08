@@ -36,3 +36,19 @@ class GitHubPuller:
         Pulls from: mock-redshift-admin/clients/{cmx_org_schema_name}/{cmx_client_schema_name}."""
         specific_to_client = f"clients/{cmx_org_schema_name}/{cmx_client_schema_name}"
         return self._get_repo_contents(repo_contents_path=specific_to_client)
+
+    def get_contents_of_sql_file(self, file_path):
+        """Gets the contents of a SQL file.
+
+        When fed by DatasetManagement.get_sql_file_paths_for_client or
+        DatasetManagement.get_sql_file_paths_for_all_clients_in_org, this pulls from either:
+        mock-redshift-admin/shell_scripts/
+        or
+        mock-redshift-admin/clients/
+
+        The file_path parameter should look like one of the below:
+        'shell_scripts/starship_agency/v_oneview_viva_earth.sql'
+        'clients/starship_agency/crush_bugs_corp/_heres_another_file.sql'
+        """
+        return self._get_repo_contents(repo_contents_path=file_path)
+        #by using _get_repo_contents, it's forcing a dictionary to be returned which produces a failure

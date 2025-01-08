@@ -47,15 +47,18 @@ class DatasetManagement:
 
     def get_sql_file_paths_for_all_clients_in_org(self, org_id):
         client_id_list = hestia.get_client_ids_for_org(org_id)
-        client_sql_file_path_dict = {}
+        client_sql_file_paths_list = []
         for client_id in client_id_list:
             client_sql_file_list = self.get_sql_file_paths_for_client(client_id)
-            client_sql_file_path_dict["client_id"] = client_id
-            client_sql_file_path_dict["client_sql_file_list"] = client_sql_file_list
-        print(client_sql_file_path_dict)
-        # values are getting overwritten
-        # see: https://stackoverflow.com/questions/31181830/adding-item-to-dictionary-within-loop
+            client_sql_file_path_dict = {"client_id": client_id, "client_sql_file_list": client_sql_file_list}
+            client_sql_file_paths_list.append(client_sql_file_path_dict)
+        return client_sql_file_paths_list
+
+    #now create a function in the github_api to pull sql files to be executed
+    #then create a function here to call that function based on get_sql_file_paths_for_all_clients_in_org
 
 
 # dm = DatasetManagement()
 # print(dm.get_sql_file_paths_for_all_clients_in_org(123456789))
+# v_oneview_viva_earth = dm.get_sql_file_paths_for_all_clients_in_org(123456789)[0]["client_sql_file_list"][0]
+# print(github.get_contents_of_sql_file(v_oneview_viva_earth))
