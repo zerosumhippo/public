@@ -1,5 +1,6 @@
-from wrappers import github_auth
+# from wrappers import github_auth
 import requests
+import base64
 
 
 class GitHubPuller:
@@ -10,7 +11,7 @@ class GitHubPuller:
         self.repo_name = 'mock-redshift-admin'
         self.repo_contents_url = f"https://api.github.com/repos/{self.user_name}/{self.repo_name}/contents/"
 
-    def _get_repo_contents(self, repo_contents_path):
+    def get_repo_contents(self, repo_contents_path):
         try:
             response = requests.get(self.repo_contents_url + repo_contents_path)
             response.raise_for_status()
@@ -18,10 +19,13 @@ class GitHubPuller:
             print(error)
             return None
         else:
-            return {
-                "file names": [sql_file["name"] for sql_file in response.json()],
-                "file paths": [sql_file["path"] for sql_file in response.json()]
-            }
+            return response.json()
+
+    def _create_file_name_and_path_dict(self, get_repo_contents_response):
+        return {
+            "file names": [sql_file["name"] for sql_file in get_repo_contents_response],
+            "file paths": [sql_file["path"] for sql_file in get_repo_contents_response]
+        }
 
     def get_sql_files_in_org_shell_script(self, cmx_org_schema_name):
         """The shell script is a representation of all files that the organization has,
@@ -29,13 +33,15 @@ class GitHubPuller:
         script should provide us with all possible OneViews for a specific organization.
         Pulls from: mock-redshift-admin/shell_scripts/{cmx_org_schema_name}"""
         in_org_shell_script = f"shell_scripts/{cmx_org_schema_name}"
-        return self._get_repo_contents(repo_contents_path=in_org_shell_script)
+        repo_contents = self.get_repo_contents(repo_contents_path=in_org_shell_script)
+        return self._create_file_name_and_path_dict(get_repo_contents_response=repo_contents)
 
     def get_sql_files_specific_to_client(self, cmx_org_schema_name, cmx_client_schema_name):
         """Gets a list of the contents that exist in the client-specific folder.
         Pulls from: mock-redshift-admin/clients/{cmx_org_schema_name}/{cmx_client_schema_name}."""
         specific_to_client = f"clients/{cmx_org_schema_name}/{cmx_client_schema_name}"
-        return self._get_repo_contents(repo_contents_path=specific_to_client)
+        repo_contents = self.get_repo_contents(repo_contents_path=specific_to_client)
+        return self._create_file_name_and_path_dict(get_repo_contents_response=repo_contents)
 
     def get_contents_of_sql_file(self, file_path):
         """Gets the contents of a SQL file.
@@ -47,8 +53,10 @@ class GitHubPuller:
         mock-redshift-admin/clients/
 
         The file_path parameter should look like one of the below:
-        'shell_scripts/starship_agency/v_oneview_viva_earth.sql'
-        'clients/starship_agency/crush_bugs_corp/_heres_another_file.sql'
+        'shell_scripts/{cmx_org_schema_name}/{file_name.sql}'
+        'clients/{cmx_org_schema_name}/{cmx_client_schema_name}/{file_name.sql}'
         """
-        return self._get_repo_contents(repo_contents_path=file_path)
-        #by using _get_repo_contents, it's forcing a dictionary to be returned which produces a failure
+        file_contents = self.get_repo_contents(repo_contents_path=file_path)
+        if file_contents and 'content' in file_contents:
+            sql_content = base64.b64decode(file_contents['content']).decode('utf-8')
+            return sql_content

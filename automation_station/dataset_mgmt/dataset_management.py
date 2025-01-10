@@ -54,11 +54,19 @@ class DatasetManagement:
             client_sql_file_paths_list.append(client_sql_file_path_dict)
         return client_sql_file_paths_list
 
-    #now create a function in the github_api to pull sql files to be executed
-    #then create a function here to call that function based on get_sql_file_paths_for_all_clients_in_org
+    def get_sql_file_content(self, sql_file_path_list_for_client_or_org):
+        if type(sql_file_path_list_for_client_or_org[0]) == dict:
+            print(sql_file_path_list_for_client_or_org[0]['client_sql_file_list'][0])
+            github.get_contents_of_sql_file(sql_file_path_list_for_client_or_org[0]['client_sql_file_list'][0])
+        #returning None
 
 
-# dm = DatasetManagement()
+dm = DatasetManagement()
 # print(dm.get_sql_file_paths_for_all_clients_in_org(123456789))
 # v_oneview_viva_earth = dm.get_sql_file_paths_for_all_clients_in_org(123456789)[0]["client_sql_file_list"][0]
+print(dm.get_sql_file_content(dm.get_sql_file_paths_for_all_clients_in_org(123456789)))
+# print(dm.get_sql_file_paths_for_all_clients_in_org(123456789))
+# print(type(dm.get_sql_file_paths_for_all_clients_in_org(123456789)[0]))
+# print(dm.get_sql_file_paths_for_client(12345))
+# print(type(dm.get_sql_file_paths_for_client(12345)[0]))
 # print(github.get_contents_of_sql_file(v_oneview_viva_earth))
