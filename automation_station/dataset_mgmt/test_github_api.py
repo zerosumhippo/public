@@ -1,40 +1,71 @@
 import unittest
+from unittest.mock import patch
 from github_api import GitHubPuller
-from mock_hestia import Hestia
-from random import randint
+import requests
+import base64
 
 
 class TestGitHubApi(unittest.TestCase):
 
     def setUp(self):
-        self.hestia = Hestia()
-        self.github = GitHubPuller()
-        self.random_organization_list_index = randint(0, (len(self.hestia.all_org_metadata["organizations"]) - 1))
-        self.random_organization_schema_name = [org["schema name"] for org
-                                                in self.hestia.all_org_metadata["organizations"]
-                                                ][self.random_organization_list_index]
-        self.random_organization_id = [org["id"] for org in self.hestia.all_org_metadata["organizations"]
-                                       ][self.random_organization_list_index]
-        self.random_organization_client_list = [client["schema name"] for client
-                                                in self.hestia.all_org_metadata["clients"]
-                                                if client["organization id"] == self.random_organization_id]
-        self.random_client_list_index = randint(0, (len(self.random_organization_client_list) - 1))
-        self.random_client_schema_name = self.random_organization_client_list[self.random_client_list_index]
-        self.org_shell_script_sql_file_list = self.github.get_sql_files_in_org_shell_script(
-            self.random_organization_schema_name)
-        self.client_specific_sql_file_list = self.github.get_sql_files_specific_to_client(
-            self.random_organization_schema_name, self.random_client_schema_name
-        )
+        self.puller = GitHubPuller()
 
-    def tearDown(self):
-        self.random_organization_list_index = None
-        self.random_organization_schema_name = ""
-        self.random_organization_id = None
-        self.random_organization_client_list = []
-        self.random_client_list_index = None
-        self.random_client_schema_name = ""
-        self.org_shell_script_sql_file_list = []
-        self.client_specific_sql_file_list = []
+    #Adjust these tests to more specifically call out the difference in client vs org scripts.
+    @patch('requests.get')
+    def test_get_repo_contents_success(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {'key': 'value'}
+        result = self.puller.get_repo_contents('some/file/path')
+        self.assertEqual(result, {'key': 'value'})
 
-    def test_org_shell_script_list_not_empty(self):
-        self.assertNotEqual(self.org_shell_script_sql_file_list, [], "Organization shell script list is empty.")
+    @patch('requests.get')
+    def test_get_repo_contents_failure(self, mock_get):
+        mock_get.side_effect = requests.exceptions.RequestException('Error')
+        result = self.puller.get_repo_contents('some/file/path')
+        self.assertIsNone(result)
+
+    def test_create_file_name_and_path_dict(self):
+        response = [
+            {'name': 'file1.sql', 'path': 'path1'},
+            {'name': 'file2.sql', 'path': 'path2'}
+        ]
+        expected = {
+            "file names": ['file1.sql', 'file2.sql'],
+            "file paths": ['path1', 'path2']
+        }
+        result = self.puller._create_file_name_and_path_dict(response)
+        self.assertEqual(result, expected)
+
+    @patch.object(GitHubPuller, 'get_repo_contents')
+    def test_get_sql_files_in_org_shell_script(self, mock_get_repo_contents):
+        mock_get_repo_contents.return_value = [
+            {'name': 'file1.sql', 'path': 'path1'},
+            {'name': 'file2.sql', 'path': 'path2'}
+        ]
+        result = self.puller.get_sql_files_in_org_shell_script('org_schema')
+        expected = {
+            "file names": ['file1.sql', 'file2.sql'],
+            "file paths": ['path1', 'path2']
+        }
+        self.assertEqual(result, expected)
+
+    @patch.object(GitHubPuller, 'get_repo_contents')
+    def test_get_sql_files_specific_to_client(self, mock_get_repo_contents):
+        mock_get_repo_contents.return_value = [
+            {'name': 'file1.sql', 'path': 'path1'},
+            {'name': 'file2.sql', 'path': 'path2'}
+        ]
+        result = self.puller.get_sql_files_specific_to_client('org_schema', 'client_schema')
+        expected = {
+            "file names": ['file1.sql', 'file2.sql'],
+            "file paths": ['path1', 'path2']
+        }
+        self.assertEqual(result, expected)
+
+    @patch.object(GitHubPuller, 'get_repo_contents')
+    def test_get_sql_file_content(self, mock_get_repo_contents):
+        mock_get_repo_contents.return_value = {
+            'content': base64.b64encode(b'SELECT * FROM table;').decode('utf-8')
+        }
+        result = self.puller.get_sql_file_content('some_path')
+        self.assertEqual(result, 'SELECT * FROM table;')
