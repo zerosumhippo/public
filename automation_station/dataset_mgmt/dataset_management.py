@@ -1,10 +1,3 @@
-# Gotta take arguments that identify:
-# # client
-# # oneview
-# # redshift cluster
-# Then it would reach into github to grab the SQL
-# Then update in Redshift
-# Then run metadata generation
 from github_api import GitHubPuller
 from mock_hestia import Hestia
 
@@ -54,19 +47,14 @@ class DatasetManagement:
             client_sql_file_paths_list.append(client_sql_file_path_dict)
         return client_sql_file_paths_list
 
-    def get_sql_file_content(self, sql_file_path_list_for_client_or_org):
-        if type(sql_file_path_list_for_client_or_org[0]) == dict:
-            print(sql_file_path_list_for_client_or_org[0]['client_sql_file_list'][0])
-            github.get_contents_of_sql_file(sql_file_path_list_for_client_or_org[0]['client_sql_file_list'][0])
-        #returning None
+    def execute_sql_files_for_client(self, client_id, redshift_cluster_id):
+        sql_file_list = self.get_sql_file_paths_for_client(client_id)
+        for file in sql_file_list:
+            sql_in_file = github.get_sql_file_content(file)
+            print(f'Execute the below sql in redshift cluster id: {redshift_cluster_id}\n\n"{sql_in_file}"\n')
+        print(f"Run metadata generation.")
 
-
-dm = DatasetManagement()
-# print(dm.get_sql_file_paths_for_all_clients_in_org(123456789))
-# v_oneview_viva_earth = dm.get_sql_file_paths_for_all_clients_in_org(123456789)[0]["client_sql_file_list"][0]
-print(dm.get_sql_file_content(dm.get_sql_file_paths_for_all_clients_in_org(123456789)))
-# print(dm.get_sql_file_paths_for_all_clients_in_org(123456789))
-# print(type(dm.get_sql_file_paths_for_all_clients_in_org(123456789)[0]))
-# print(dm.get_sql_file_paths_for_client(12345))
-# print(type(dm.get_sql_file_paths_for_client(12345)[0]))
-# print(github.get_contents_of_sql_file(v_oneview_viva_earth))
+    def execute_sql_files_for_all_clients_in_org(self, org_id, redshift_cluster_id):
+        client_id_list = hestia.get_client_ids_for_org(org_id)
+        for client_id in client_id_list:
+            self.execute_sql_files_for_client(client_id, redshift_cluster_id)

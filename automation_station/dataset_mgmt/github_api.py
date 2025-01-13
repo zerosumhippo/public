@@ -43,7 +43,7 @@ class GitHubPuller:
         repo_contents = self.get_repo_contents(repo_contents_path=specific_to_client)
         return self._create_file_name_and_path_dict(get_repo_contents_response=repo_contents)
 
-    def get_contents_of_sql_file(self, file_path):
+    def get_sql_file_content(self, file_path):
         """Gets the contents of a SQL file.
 
         When fed by DatasetManagement.get_sql_file_paths_for_client or
