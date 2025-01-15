@@ -10,7 +10,6 @@ class TestGitHubApi(unittest.TestCase):
     def setUp(self):
         self.puller = GitHubPuller()
 
-    #Adjust these tests to more specifically call out the difference in client vs org scripts.
     @patch('requests.get')
     def test_get_repo_contents_success(self, mock_get):
         mock_get.return_value.status_code = 200
@@ -39,26 +38,32 @@ class TestGitHubApi(unittest.TestCase):
     @patch.object(GitHubPuller, 'get_repo_contents')
     def test_get_sql_files_in_org_shell_script(self, mock_get_repo_contents):
         mock_get_repo_contents.return_value = [
-            {'name': 'file1.sql', 'path': 'path1'},
-            {'name': 'file2.sql', 'path': 'path2'}
+            {'name': 'v_oneview_name_1.sql',
+             'path': 'mock-redshift-admin/shell_scripts/org_schema_name/v_oneview_name_1.sql'},
+            {'name': 'v_oneview_name_2.sql',
+             'path': 'mock-redshift-admin/shell_scripts/org_schema_name/v_oneview_name_2.sql'}
         ]
-        result = self.puller.get_sql_files_in_org_shell_script('org_schema')
+        result = self.puller.get_sql_files_in_org_shell_script('org_schema_name')
         expected = {
-            "file names": ['file1.sql', 'file2.sql'],
-            "file paths": ['path1', 'path2']
+            "file names": ['v_oneview_name_1.sql', 'v_oneview_name_2.sql'],
+            "file paths": ['mock-redshift-admin/shell_scripts/org_schema_name/v_oneview_name_1.sql',
+                           'mock-redshift-admin/shell_scripts/org_schema_name/v_oneview_name_2.sql']
         }
         self.assertEqual(result, expected)
 
     @patch.object(GitHubPuller, 'get_repo_contents')
     def test_get_sql_files_specific_to_client(self, mock_get_repo_contents):
         mock_get_repo_contents.return_value = [
-            {'name': 'file1.sql', 'path': 'path1'},
-            {'name': 'file2.sql', 'path': 'path2'}
+            {'name': 'v_oneview_name_1.sql',
+             'path': 'clients/org_schema_name/client_schema_name/v_oneview_name_1.sql'},
+            {'name': 'v_oneview_name_2.sql',
+             'path': 'clients/org_schema_name/client_schema_name/v_oneview_name_2.sql'}
         ]
-        result = self.puller.get_sql_files_specific_to_client('org_schema', 'client_schema')
+        result = self.puller.get_sql_files_specific_to_client('org_schema_name', 'client_schema_name')
         expected = {
-            "file names": ['file1.sql', 'file2.sql'],
-            "file paths": ['path1', 'path2']
+            "file names": ['v_oneview_name_1.sql', 'v_oneview_name_2.sql'],
+            "file paths": ['clients/org_schema_name/client_schema_name/v_oneview_name_1.sql',
+                           'clients/org_schema_name/client_schema_name/v_oneview_name_2.sql']
         }
         self.assertEqual(result, expected)
 
