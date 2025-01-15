@@ -1,5 +1,5 @@
 from github_api import GitHubPuller
-from mock_hestia import Hestia
+from imitation_hestia import Hestia
 
 hestia = Hestia()
 github = GitHubPuller()
