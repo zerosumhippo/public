@@ -58,3 +58,6 @@ class DatasetManagement:
         client_id_list = hestia.get_client_ids_for_org(org_id)
         for client_id in client_id_list:
             self.execute_sql_files_for_client(client_id, redshift_cluster_id)
+
+# dm = DatasetManagement()
+# print(dm.get_sql_file_paths_for_client(12345))

@@ -1,17 +1,11 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from dataset_management import DatasetManagement
-from github_api import GitHubPuller
-from imitation_hestia import Hestia
 
 
 class TestDatasetManagement(unittest.TestCase):
 
-    @patch('dataset_management.Hestia')
-    @patch('dataset_management.GitHubPuller')
-    def setUp(self, MockGitHubPuller, MockHestia):
-        self.mock_hestia = MockHestia.return_value
-        self.mock_github = MockGitHubPuller.return_value
+    def setUp(self):
         self.dm = DatasetManagement()
 
     def test_only_retain_sql_files(self):
@@ -39,17 +33,31 @@ class TestDatasetManagement(unittest.TestCase):
         result = self.dm._prioritize_client_folder_over_org_shell(org_shell_contents, client_folder_contents)
         self.assertEqual(result, expected_output)
 
-    # @patch('dataset_management.DatasetManagement._only_retain_sql_files')
-    # def test_get_sql_file_paths_for_client(self, mock_only_retain_sql_files):
-    #     self.mock_hestia.get_client_metadata.return_value = {"schema name": "client_schema", "organization id": 123}
-    #     self.mock_hestia.get_org_metadata.return_value = {"schema name": "org_schema"}
-    #     self.mock_github.get_sql_files_in_org_shell_script.return_value = {"file names": ["file1.sql"], "file paths": ["path1/file1.sql"]}
-    #     self.mock_github.get_sql_files_specific_to_client.return_value = {"file names": ["file2.sql"], "file paths": ["path2/file2.sql"]}
-    #     mock_only_retain_sql_files.side_effect = lambda x: x
-    #
-    #     expected_output = ["path1/file1.sql", "path2/file2.sql"]
-    #     result = self.dm.get_sql_file_paths_for_client(1)
-    #     self.assertEqual(result, expected_output)
+    @patch('dataset_management.GitHubPuller.get_sql_files_specific_to_client')
+    @patch('dataset_management.GitHubPuller.get_sql_files_in_org_shell_script')
+    @patch('dataset_management.Hestia.get_org_metadata')
+    @patch('dataset_management.Hestia.get_client_metadata')
+    def test_get_sql_file_paths_for_client(self,
+                                           mock_get_client_metadata,
+                                           mock_get_org_metadata,
+                                           mock_get_sql_files_in_org_shell_script,
+                                           mock_get_sql_files_specific_to_client
+                                           ):
+        mock_get_client_metadata.return_value = {"schema name": "client_schema_name", "organization id": 123}
+        mock_get_org_metadata.return_value = {"schema name": "org_schema_name"}
+        mock_get_sql_files_in_org_shell_script.return_value = {
+            "file names": ['v_oneview_name_1.sql', 'v_oneview_name_2.sql'],
+            "file paths": ['mock-redshift-admin/shell_scripts/org_schema_name/v_oneview_name_1.sql',
+                           'mock-redshift-admin/shell_scripts/org_schema_name/v_oneview_name_2.sql']
+        }
+        mock_get_sql_files_specific_to_client.return_value = {
+            "file names": ['v_oneview_name_1.sql'],
+            "file paths": ['clients/org_schema_name/client_schema_name/v_oneview_name_1.sql']
+        }
+        expected_output = ['mock-redshift-admin/shell_scripts/org_schema_name/v_oneview_name_2.sql',
+                           'clients/org_schema_name/client_schema_name/v_oneview_name_1.sql']
+        result = self.dm.get_sql_file_paths_for_client(1)
+        self.assertEqual(result, expected_output)
 
     # @patch('dataset_management.DatasetManagement.get_sql_file_paths_for_client')
     # def test_get_sql_file_paths_for_all_clients_in_org(self, mock_get_sql_file_paths_for_client):
@@ -77,6 +85,5 @@ class TestDatasetManagement(unittest.TestCase):
             mock_print.assert_any_call('Execute the below sql in redshift cluster id: 456\n\n"SELECT * FROM table2;"\n')
             mock_print.assert_any_call("Run metadata generation.")
 
-    def test_execute_sql_files_for_all_clients_in_org(self):
-        pass
-        # start the fuck over because this shit is getting so goddamn old
+    # def test_execute_sql_files_for_all_clients_in_org(self):
+    #     pass
