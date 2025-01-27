@@ -10,7 +10,7 @@ class DatasetManagement:
 
     Glossary:
     'client-specific folder' = mock-redshift-admin/clients/{cmx_org_schema_name}/{cmx_client_schema_name}
-    'organization shell script' = shell_scripts/{cmx_org_schema_name}/{file_name.sql}
+    'organization shell script' = mock-redshift-admin/shell_scripts/{cmx_org_schema_name}
 
     If a SQL file (read: OneView) exists in the client-specific folder and a SQL file with that same name also exists
     in the organization shell script, then the file in the client-specific folder takes precedence and is executed
