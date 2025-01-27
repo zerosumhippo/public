@@ -6,7 +6,15 @@ github = GitHubPuller()
 
 
 class DatasetManagement:
-    """Finds OneViews for an agency or client in GitHub and runs the SQL scripts."""
+    """Finds OneViews for an organization or client in GitHub and runs the SQL scripts.
+
+    Glossary:
+    'client-specific folder' = mock-redshift-admin/clients/{cmx_org_schema_name}/{cmx_client_schema_name}
+    'organization shell script' = shell_scripts/{cmx_org_schema_name}/{file_name.sql}
+
+    If a SQL file (read: OneView) exists in the client-specific folder and a SQL file with that same name also exists
+    in the organization shell script, then the file in the client-specific folder takes precedence and is executed
+    instead of the file with the same name in the organization shell script."""
 
     def __init__(self):
         pass
@@ -58,6 +66,3 @@ class DatasetManagement:
         client_id_list = hestia.get_client_ids_for_org(org_id)
         for client_id in client_id_list:
             self.execute_sql_files_for_client(client_id, redshift_cluster_id)
-
-# dm = DatasetManagement()
-# print(dm.get_sql_file_paths_for_client(12345))

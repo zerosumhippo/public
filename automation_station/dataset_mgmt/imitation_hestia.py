@@ -1,7 +1,9 @@
 
 
 class Hestia:
-    """Finds OneViews for an agency or client in GitHub and runs the SQL scripts."""
+    """Intended to fill in the for the "Hestia" postgresql database used by the legacy ChannelMix implementation.
+
+    Metadata store for organizations, clients, and redshift clusters."""
 
     def __init__(self):
         self.all_org_metadata = {
