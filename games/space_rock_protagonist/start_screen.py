@@ -3,6 +3,7 @@ import pygame
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 203, 0)
+GAME_TITLE_TEXT = "Space Rock Protagonist"
 
 
 class StartScreen:
@@ -10,14 +11,17 @@ class StartScreen:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((1280, 720))
-        self.game_title = pygame.display.set_caption("Space Rock Protagonist")
-        self.game_title_font = font = pygame.font.Font("assets/fonts/Astron Boy Video.otf", 100)
+        self.game_title = pygame.display.set_caption(GAME_TITLE_TEXT)
+        self.game_title_font = pygame.font.Font("assets/fonts/Astron Boy Video.otf", 100)
         self.instruct_font = pygame.font.SysFont("impact", 24)
-        self.game_is_running = True
+        self.is_running = True
+
+    def fill_screen_black(self):
+        self.screen.fill(BLACK)
 
     def draw_start_screen(self):
-        self.screen.fill(BLACK)
-        title_text = self.game_title_font.render("Space Rock Protagonist", True, WHITE)
+        self.fill_screen_black()
+        title_text = self.game_title_font.render(GAME_TITLE_TEXT, True, WHITE)
         instruction_text = self.instruct_font.render("Press any key to start", True, GREEN)
 
         title_rect = title_text.get_rect(center=(640, 160))
@@ -29,16 +33,13 @@ class StartScreen:
         pygame.display.update()
 
     def start_screen_loop(self):
-        in_start_screen = True
-        while in_start_screen:
+        while self.is_running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    in_start_screen = False
-                    self.game_is_running = False
+                    self.is_running = False
                 elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     # If any key is pressed or mouse is clicked, move to the game
-                    in_start_screen = False
-                    print("Start the game!")
-                    # Transition to the main game (for now, we can just print a message)
+                    self.is_running = False
+                    self.fill_screen_black()
             self.draw_start_screen()
             pygame.time.Clock().tick(60)  # Limit the frame rate to 60 FPS
