@@ -3,6 +3,15 @@ import sys
 from start_screen import StartScreen
 import math
 
+BLACK = (0, 0, 0)
+GRAY = (169, 169, 169)
+WHITE = (255, 255, 255)
+DARK_GRAY = (64, 64, 64)
+BLUE = (0, 0, 255)
+RED = (255, 0, 0)
+
+SCREEN_HEIGHT = 720
+
 start_screen = StartScreen()
 clock = pygame.time.Clock()
 delta_time = 0
@@ -28,6 +37,8 @@ spaceship_points = [
     (830, 420),  # Right side of the right panel (bottom)
     (760, 420),  # Right bottom of the right wing
 ]
+
+
 running = True
 
 start_screen.start_screen_loop()
@@ -41,11 +52,37 @@ if not start_screen.is_running:
         # fill the screen with a color to wipe away anything from last frame
         start_screen.screen.fill("black")
 
-        # pygame.cursors.Cursor()
-        pygame.draw.circle(start_screen.screen, "red", player_pos, 40)
-        # circle(surface, color, center, radius) make it look like tie interceptor with circle in middle
-        # pygame.draw.polygon(start_screen.screen, "green", spaceship_points, width=0)
-        # polygon(surface, color, points, width=0)
+        # top_cockpit_polygon
+        pygame.draw.polygon(start_screen.screen, GRAY, [(375, 250), (425, 250), (440, 275), (360, 275)])
+        # middle square
+        pygame.draw.rect(start_screen.screen, GRAY, (361, 276, 79, 24))
+        # bottom_cockpit_polygon
+        pygame.draw.polygon(start_screen.screen, GRAY, [(375, 325), (425, 325), (440, 300), (360, 300)])
+
+        # Draw the left wing (polygon)
+        pygame.draw.polygon(start_screen.screen, DARK_GRAY, [(360, 275), (300, 200), (300, 350), (360, 300)])
+
+        # Draw the right wing (polygon)
+        pygame.draw.polygon(start_screen.screen, DARK_GRAY, [(440, 275), (500, 200), (500, 350), (440, 300)])
+
+        # Draw the cockpit (small circle in the middle)
+        pygame.draw.circle(start_screen.screen, BLUE, (401, 290), 16)
+
+        # Top - Draw the wing struts (lines connecting the body and wings)
+        pygame.draw.line(start_screen.screen, GRAY, (375, 250), (300, 200), 3)
+        pygame.draw.line(start_screen.screen, GRAY, (425, 250), (500, 200), 3)
+
+        # Top - Draw the diagonal crossbars inside the wings
+        pygame.draw.line(start_screen.screen, WHITE, (360, 275), (300, 200), 3)
+        pygame.draw.line(start_screen.screen, WHITE, (440, 275), (500, 200), 3)
+
+        # Bottom - Draw the wing struts (lines connecting the body and wings)
+        # pygame.draw.line(start_screen.screen, GRAY, (375, 325), (300, 225), 3)
+        # pygame.draw.line(start_screen.screen, GRAY, (425, 325), (500, 225), 3)
+
+        # Draw the inner shape inside the wings (triangular details)
+        pygame.draw.polygon(start_screen.screen, RED, [(300, 200), (315, 240), (300, 240)])
+        pygame.draw.polygon(start_screen.screen, RED, [(500, 200), (485, 240), (500, 240)])
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
